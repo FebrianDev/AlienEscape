@@ -1,12 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+
 public class Ability : MonoBehaviour
 {
     [SerializeField] private GameObject panelPause = null, panelGameOver = null, pause = null, blurEffect;
 
-    [SerializeField]private Text textScore = null, textBestScore = null, textYourScore = null, textYourBestScore = null;
-    [SerializeField] private GameObject [] itemShow = null;
+    [SerializeField] private Text textScore = null,
+        textBestScore = null,
+        textYourScore = null,
+        textYourBestScore = null,
+        textCoin = null;
+
+    [SerializeField] private GameObject[] itemShow = null;
     int bestScore;
 
     void Start()
@@ -26,18 +32,20 @@ public class Ability : MonoBehaviour
 
         pause.SetActive(true);
     }
-    
+
     void Update()
     {
         textScore.text = "Score\n" + DataPlayer.score;
         textBestScore.text = "Best Score : " + bestScore;
-
+        textCoin.text = DataPlayer.coin.ToString();
+        
         if (DataPlayer.invisible)
         {
             print("Invisible");
             itemShow[0].SetActive(true);
             itemShow[1].SetActive(false);
-        }else if (DataPlayer.shield)
+        }
+        else if (DataPlayer.shield)
         {
             print("Shield");
             itemShow[0].SetActive(false);
@@ -51,7 +59,7 @@ public class Ability : MonoBehaviour
 
         if (DataPlayer.isGameOver)
         {
-            if(DataPlayer.score > bestScore)
+            if (DataPlayer.score > bestScore)
             {
                 textYourBestScore.text = "Your Best Score : " + DataPlayer.score;
                 PlayerPrefs.SetInt("BestScore", DataPlayer.score);

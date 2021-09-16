@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+
 public class Player : MonoBehaviour
 {
-    [Header("Components")]
-    [SerializeField] private AudioSource gameOver;
+    [Header("Components")] [SerializeField]
+    private AudioSource gameOver;
+
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private SpriteRenderer player;
 
-    [Header("GameObject")]
-    [SerializeField] private GameObject shield;
+    [Header("GameObject")] [SerializeField]
+    private GameObject shield;
+
     [SerializeField] private GameObject lightInvisible;
 
     private Coroutine inv, shl;
@@ -20,13 +23,19 @@ public class Player : MonoBehaviour
         DataPlayer.health = 3;
         DataPlayer.invisible = false;
         DataPlayer.shield = false;
+        DataPlayer.coin = 0;
+
+        DataItem.Ghost = 0;
+        DataItem.Shield = 0;
+
         shield.SetActive(false);
         rigid = GetComponent<Rigidbody2D>();
-
     }
 
     private void Update()
     {
+        Debug.Log("Ghost " + DataItem.Ghost);
+        Debug.Log("Shield " + DataItem.Shield);
         if (Input.GetMouseButton(0))
         {
             if (rigid != null && !DataPlayer.isGameOver)
@@ -73,7 +82,7 @@ public class Player : MonoBehaviour
         {
             Destroy(GameObject.FindWithTag("HealthItem"));
 
-            if(DataPlayer.health < 3)
+            if (DataPlayer.health < 3)
             {
                 DataPlayer.health++;
             }
@@ -85,68 +94,83 @@ public class Player : MonoBehaviour
 
         if (collision.gameObject.tag.Equals("InvisibleItem"))
         {
+            DataItem.Ghost += 1;
+            DataItem.Shield = 0;
             Destroy(GameObject.FindWithTag("InvisibleItem"));
-            if (DataPlayer.shield)
+            if (DataItem.Ghost == 3)
             {
-                StopCoroutine(nameof(ShieldActive));
-                DataPlayer.shield = false;
-            }
-          
-            if (DataPlayer.invisible)
-            {
-                DataPlayer.invisible = true;
-                StopCoroutine(nameof(InvisibleActive));
-                StartCoroutine(nameof(InvisibleActive));
-            }
-            else
-            {
-                DataPlayer.invisible = true;
-                StartCoroutine(nameof(InvisibleActive));
+                if (DataPlayer.shield)
+                {
+                    StopCoroutine(nameof(ShieldActive));
+                    DataPlayer.shield = false;
+                    DataItem.Ghost = 0;
+                }
+
+                if (DataPlayer.invisible)
+                {
+                    DataPlayer.invisible = true;
+                    if (inv != null)
+                        StopCoroutine(nameof(InvisibleActive));
+                    inv = StartCoroutine(nameof(InvisibleActive));
+                    DataItem.Ghost = 0;
+                }
+                else
+                {
+                    DataItem.Ghost = 0;
+                    DataPlayer.invisible = true;
+                    inv = StartCoroutine(nameof(InvisibleActive));
+                }
             }
         }
 
         if (collision.gameObject.tag.Equals("ShieldItem"))
         {
+            DataItem.Ghost = 0;
+            DataItem.Shield += 1;
             Destroy(GameObject.FindWithTag("ShieldItem"));
-          
-            if (DataPlayer.invisible)
+            if (DataItem.Shield == 3)
             {
-                StopCoroutine(nameof(InvisibleActive));
-                DataPlayer.invisible = false;
-            }
+                if (DataPlayer.invisible)
+                {
+                    StopCoroutine(nameof(InvisibleActive));
+                    DataPlayer.invisible = false;
+                    DataItem.Shield = 0;
+                }
 
-            if (DataPlayer.shield)
-            {
-                DataPlayer.shield = true;
-                StopCoroutineShield();
-                shl = StartCoroutine(nameof(ShieldActive));
-            }
-            else
-            {
-                DataPlayer.shield= true;
-                shl = StartCoroutine(nameof(ShieldActive));
+                if (DataPlayer.shield)
+                {
+                    DataPlayer.shield = true;
+                    StopCoroutineShield();
+                    shl = StartCoroutine(nameof(ShieldActive));
+                    DataItem.Shield = 0;
+                }
+                else
+                {
+                    DataItem.Shield = 0;
+                    DataPlayer.shield = true;
+                    shl = StartCoroutine(nameof(ShieldActive));
+                }
             }
         }
     }
 
     IEnumerator InvisibleActive()
-    {       
+    {
         yield return new WaitForSeconds(5);
         DataPlayer.invisible = false;
     }
 
     public IEnumerator ShieldActive()
     {
-        
         yield return new WaitForSeconds(5);
         DataPlayer.shield = false;
     }
 
     public void StopCoroutineShield()
     {
-        if(shl != null)
+        if (shl != null)
         {
-            StopCoroutine(nameof(ShieldActive)); 
+            StopCoroutine(nameof(ShieldActive));
         }
     }
 }
