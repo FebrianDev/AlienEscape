@@ -8,6 +8,11 @@ public class SceneManagement : MonoBehaviour
         SceneManager.LoadScene("SampleScene");
     }
 
+    public void Tutorial()
+    {
+          SceneManager.LoadScene("Tutorial");
+    }
+
     public void Exit()
     {
         Application.Quit();
